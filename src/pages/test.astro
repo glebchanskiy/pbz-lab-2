@@ -1,0 +1,33 @@
+---
+import Layout from 'layouts/Layout.astro'
+import Table from 'components/commons/Table'
+import Row from 'components/commons/Row'
+import Item from 'components/commons/Item'
+---
+
+<Layout>
+  <Table>
+   <Row>
+    <Item content={'lol kek'}/>
+    <Item content={'2'}/>
+    <Item content={'blablabla'}/>
+   </Row>
+   <Row>
+    <Item content={'lol'}/>
+    <Item content={'4'}/>
+    <Item content={'kek'}/>
+   </Row>
+  </Table>
+  <table>
+    <tr>
+      <td>lol kek </td>
+      <td> 2</td>
+      <td> blablabla</td>
+    </tr>
+    <tr>
+      <td>lol </td>
+      <td>4 </td>
+      <td>kek </td>
+    </tr>
+  </table>
+</Layout>

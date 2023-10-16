@@ -1,0 +1,93 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum RiskCategory {
+  LowRisk
+  MediumRisk
+  ModerateRisk
+  HighRisk
+  VeryHighRisk
+}
+
+model Organization {
+  id             Int    @id @default(autoincrement())
+  code           String
+  fullName       String
+  shortName      String
+  address        String
+  bankNumber     String
+  specialization String
+
+  insuredEmployes   InsuredEmploye[]
+  insuranceContract InsuranceContract[]
+}
+
+model InsuredEmploye {
+  id           Int          @id @default(autoincrement())
+  fullName     String
+  age          Int
+  riskCategory RiskCategory
+
+  organization                Organization                  @relation(fields: [organizationId], references: [id])
+  organizationId              Int
+  employeesInContract         EmployeesInContract[]
+  EmployeesPaymentsInContract EmployeesPaymentsInContract[]
+}
+
+model InsuranceAgent {
+  id           Int    @id @default(autoincrement())
+  fullName     String
+  passportData String
+
+  contracts InsuranceContract[]
+}
+
+model InsuranceContract {
+  id             Int      @id @default(autoincrement())
+  creationDate   DateTime @default(now())
+  expirationDate DateTime
+
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  agent          InsuranceAgent @relation(fields: [agentId], references: [id])
+  agentId        Int
+
+  employeesInContract         EmployeesInContract[]
+  EmployeesPaymentsInContract EmployeesPaymentsInContract[]
+  InsuranceContractPaymants   InsuranceContractPaymants[]
+}
+
+model EmployeesInContract {
+  contract   InsuranceContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId Int
+
+  employee   InsuredEmploye @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId Int
+
+  @@id([contractId, employeeId])
+}
+
+model EmployeesPaymentsInContract {
+  contract   InsuranceContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contractId Int
+
+  employee   InsuredEmploye @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId Int
+
+  @@id([contractId, employeeId])
+}
+
+model InsuranceContractPaymants {
+  riskCategory        RiskCategory
+  cost                Int
+  insuranceContract   InsuranceContract @relation(fields: [insuranceContractId], references: [id], onDelete: Cascade)
+  insuranceContractId Int
+
+  @@id([riskCategory, insuranceContractId])
+}
