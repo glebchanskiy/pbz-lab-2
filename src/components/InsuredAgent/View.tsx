@@ -1,6 +1,5 @@
 import { supabase } from "db/supabase/supabase";
 import { useEffect, useState } from "preact/hooks";
-import type { InsuranceAgent } from "@prisma/client";
 import Row from "components/commons/Row";
 import Item from "components/commons/Item";
 import ButtonItem from "components/commons/ButtonItem";
@@ -10,6 +9,12 @@ import Table from "components/commons/Table";
 type ViewProps = {
   setEditInsuranceAgent: (agent: InsuranceAgent) => void;
 };
+
+export type InsuranceAgent = {
+  id: number
+  passportData: string
+  fullName: string
+}
 
 export const View = (props: ViewProps) => {
   const [agents, setAgents] = useState<InsuranceAgent[] | undefined>(undefined);

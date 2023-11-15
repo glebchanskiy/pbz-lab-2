@@ -1,9 +1,7 @@
 import { supabase } from "db/supabase/supabase";
 import { useState } from "preact/hooks";
 import Table from "components/commons/Table";
-import type { InsuranceAgent } from "@prisma/client";
 import type { InsuranceContract } from "./View";
-import { InsuranceAgentHeader } from "components/InsuredAgent/View";
 import Row from "components/commons/Row";
 import Item from "components/commons/Item";
 import moment from 'moment';
@@ -12,9 +10,16 @@ type Task2CardProps = {
   contracts: InsuranceContract[];
 };
 
+type TaskRecord = {
+  agentName: string
+  passportData: string
+  contractCreationDate: string
+  organizationName: string
+}
+
 export const Task2Card = (props: Task2CardProps) => {
   const [foundedAgents, setFoundedAgents] = useState<
-    InsuranceAgent[] | undefined
+  TaskRecord[] | undefined
   >(
     undefined,
   );
@@ -33,14 +38,15 @@ export const Task2Card = (props: Task2CardProps) => {
       console.log("moment: ", d)
   
 
-      const { data } = await supabase.from("InsuranceAgent").select(
-        "*, InsuranceContract!inner(*, Organization!inner(fullName))")
-        .filter('InsuranceContract.Organization.fullName', 'eq', organizationName)
-        .filter('InsuranceContract.expirationDate', 'gte', date.toISOString())
-        .filter('InsuranceContract.creationDate', 'lte', date.toISOString());
+      // const { data } = await supabase.from("InsuranceAgent").select(
+      //   "*, InsuranceContract!inner(*, Organization!inner(fullName))")
+      //   .filter('InsuranceContract.Organization.fullName', 'eq', organizationName)
+      //   .filter('InsuranceContract.expirationDate', 'gte', date.toISOString())
+      //   .filter('InsuranceContract.creationDate', 'lte', date.toISOString());
+      const { data } = await supabase.rpc("getInsuranceAgentsByDate", {organizationnamearg: organizationName, selecteddatearg: date.toISOString()})
 
       console.log('result: ', data)
-      setFoundedAgents(data!)
+      setFoundedAgents(data as TaskRecord[])
 
     }
   };
@@ -84,7 +90,7 @@ export const Task2Card = (props: Task2CardProps) => {
         (
           <Table>
             <>
-              <InsuranceAgentHeader />
+              <InsuranceAgentCardHeader />
               {foundedAgents.map((agent) => (
                 <AgentCard
                   agent={agent}
@@ -98,14 +104,24 @@ export const Task2Card = (props: Task2CardProps) => {
 };
 
 type AgentCardProps = {
-  agent: InsuranceAgent;
+  agent: TaskRecord;
 };
 
 const AgentCard = (props: AgentCardProps) => (
   <Row>
-    <Item content={props.agent.id} center />
-    <Item content={props.agent.fullName} />
+    <Item content={props.agent.agentName} center />
+    <Item content={new Date(props.agent.contractCreationDate).toDateString()} />
     <Item content={props.agent.passportData} monospace />
+    <Item content={props.agent.organizationName} monospace />
+  </Row>
+);
+
+const InsuranceAgentCardHeader = () => (
+  <Row>
+    <Item content="Full Name" center />
+    <Item content="Contract startAt" center />
+    <Item content="Passport data" center />
+    <Item content="Organization" center />
   </Row>
 );
 

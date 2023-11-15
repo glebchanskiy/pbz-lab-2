@@ -1,17 +1,27 @@
 import { supabase } from "db/supabase/supabase";
 import { useState } from "preact/hooks";
-import { ContractCard, type InsuranceContract } from "./View";
 import Table from "components/commons/Table";
+import Row from "components/commons/Row";
+import Item from "components/commons/Item";
+import type { InsuranceContract } from "./View";
 
 type Task1CardProps = {
   contracts: InsuranceContract[];
 };
 
+type TaskRecord = {
+  contractId: number
+  address: string
+  creationDate: string
+  expirationDate: string
+  organizationName: string
+}
+
 export const Task1Card = (props: Task1CardProps) => {
   const [foundedContracts, setFoundedContracts] = useState<
-    InsuranceContract[] | undefined
+  TaskRecord[] | undefined
   >(
-    undefined,
+    undefined
   );
 
   const [date, setDate] = useState<Date | undefined>();
@@ -24,19 +34,9 @@ export const Task1Card = (props: Task1CardProps) => {
 
   const findContractsByDateAndOrg = async () => {
     if (organizationName && date) {
-      const { data } = await supabase.from("InsuranceContract").select(
-        "*, Organization!inner(*), InsuranceAgent!inner (*), InsuranceContractPaymants!inner(*)",
-      ).eq("Organization.fullName", organizationName)
-      .filter('expirationDate', 'gte', date.toISOString())
-      .filter('creationDate', 'lte', date.toISOString());
-
-      console.log(data)
-
-      console.log("date: ", date)
-      console.log("date: ", new Date(date).toISOString())
-      console.log("date: ", new Date(date).toUTCString())
+      const { data } = await supabase.rpc("getActiveContractsByDate", {organizationnamearg: organizationName, selecteddatearg: date.toISOString()})
       if (data)
-        setFoundedContracts(data)
+        setFoundedContracts(data as TaskRecord[])
     }
   };
 
@@ -90,3 +90,23 @@ export const Task1Card = (props: Task1CardProps) => {
     </div>
   );
 };
+
+type ContractCardProps = {
+  contract: TaskRecord
+}
+
+const ContractCard = (props: ContractCardProps) => (
+  <Row>
+    <Item content={props.contract.contractId} center />
+    <Item
+      content={new Date(props.contract.creationDate).toDateString()}
+      center
+    />
+    <Item
+      content={new Date(props.contract.expirationDate).toDateString()}
+      center
+    />
+    <Item content={props.contract.address} />
+    <Item content={props.contract.organizationName} center />
+  </Row>
+);

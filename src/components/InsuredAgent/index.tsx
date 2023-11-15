@@ -1,10 +1,9 @@
-import { View } from "./View";
+import { InsuranceAgent, View } from "./View";
 import { Form } from "./Form";
 import { useState } from "preact/hooks";
-import type { InsuranceAgent } from "@prisma/client";
 
 const InsuranceAgents = () => {
-  const [insuranceAgent, setInsuranceAgent] = useState<InsuranceAgent | undefined>();
+  const [insuranceAgent, setInsuranceAgent] = useState<InsuranceAgent>();
 
   return (
     <div className="w-10/11 container flex flex-col mx-auto gap-4">

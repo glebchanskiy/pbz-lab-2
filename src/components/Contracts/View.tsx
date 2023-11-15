@@ -1,6 +1,3 @@
-import type { InsuranceAgent, RiskCategory } from "@prisma/client";
-import { InsuranceAgentHeader } from "components/InsuredAgent/View";
-
 import type { Organization } from "components/Organizations";
 import Item from "components/commons/Item";
 import Row from "components/commons/Row";
@@ -10,6 +7,8 @@ import { useEffect, useState } from "preact/hooks";
 import { Task1Card } from "./Task1Card";
 import { Task2Card } from "./Task2Card";
 import { Task3Card } from "./Task3Card";
+import type { InsuranceAgent } from "components/InsuredAgent/View";
+import type { RiskCategory } from "components/InsuredEmployees/View";
 
 export interface InsuranceContract {
   agentId: number;

@@ -46,14 +46,17 @@ export interface Database {
         Row: {
           contractId: number
           employeeId: number
+          paidAt: string | null
         }
         Insert: {
           contractId: number
           employeeId: number
+          paidAt?: string | null
         }
         Update: {
           contractId?: number
           employeeId?: number
+          paidAt?: string | null
         }
         Relationships: [
           {
@@ -244,7 +247,44 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_insurance_data: {
+        Args: {
+          date_arg: string
+          organization_name_arg: string
+        }
+        Returns: {
+          insurance_contract_id: number
+          organization_id: number
+          insurance_agent_id: number
+          insurance_contract_payment_id: number
+          organization_full_name: string
+        }[]
+      }
+      getActiveContractsByDate: {
+        Args: {
+          organizationnamearg: string
+          selecteddatearg: string
+        }
+        Returns: {
+          organizationName: string
+          address: string
+          contractId: number
+          creationDate: string
+          expirationDate: string
+        }[]
+      }
+      getInsuranceAgentsByDate: {
+        Args: {
+          organizationnamearg: string
+          selecteddatearg: string
+        }
+        Returns: {
+          agentName: string
+          passportData: string
+          contractCreationDate: string
+          organizationName: string
+        }[]
+      }
     }
     Enums: {
       RiskCategory:
@@ -259,3 +299,4 @@ export interface Database {
     }
   }
 }
+

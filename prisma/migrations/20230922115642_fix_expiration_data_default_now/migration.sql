@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "InsuranceContract" ALTER COLUMN "creationDate" SET DEFAULT CURRENT_TIMESTAMP,
-ALTER COLUMN "expirationDate" DROP DEFAULT;

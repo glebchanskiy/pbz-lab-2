@@ -1,4 +1,3 @@
-import type { RiskCategory } from "@prisma/client";
 import ButtonItem from "components/commons/ButtonItem";
 import ButtonPrimary from "components/commons/ButtonPrimary";
 import Item from "components/commons/Item";
@@ -6,6 +5,8 @@ import Row from "components/commons/Row";
 import Table from "components/commons/Table";
 import { supabase } from "db/supabase/supabase";
 import { useEffect, useState } from "preact/hooks";
+
+export type RiskCategory = "VeryHigh" | "RiskHigh" | "RiskModerate" | "RiskMedium" | "RiskLowRisk"
 
 export interface InsuredEmploye {
   id: number;

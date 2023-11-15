@@ -1,5 +1,6 @@
+import type { InsuranceAgent } from "components/InsuredAgent/View";
 import { useInsuranceAgentForm } from "src/hooks/useInsuranceAgentForm";
-import type { InsuranceAgent } from "@prisma/client";
+
 
 type FormProps = {
   cancelEdit: () => void;

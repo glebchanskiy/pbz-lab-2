@@ -39,9 +39,16 @@ interface InsuredEmployeEx {
   orgName: string;
 }
 
+type TaskRecord = {
+  fullName: string,
+	employeeCategory: RiskCategory,
+	payment: number,
+	paymentDate: string
+}
+
 export const Task3Card = (props: Task3CardProps) => {
   const [insuredEmploye, setInsuredEmploye] = useState<
-    InsuredEmployeEx[] | undefined
+    TaskRecord[] | undefined
   >(
     undefined,
   );
@@ -56,59 +63,23 @@ export const Task3Card = (props: Task3CardProps) => {
 
   const findInsuredEmployeByDateAndOrg = async () => {
     if (date) {
-      let kek;
-      if (organizationName) {
-        const { data: founded } = await supabase.from("InsuredEmploye").select(
-          "*, EmployeesPaymentsInContract!inner(*, InsuranceContract!inner(Organization!inner(fullName), InsuranceContractPaymants!inner(*)))",
-        )
-          .filter(
-            "EmployeesPaymentsInContract.InsuranceContract.expirationDate",
-            "gte",
-            date.toISOString(),
-          )
-          .filter(
-            "EmployeesPaymentsInContract.InsuranceContract.creationDate",
-            "lte",
-            date.toISOString(),
-          )
-          .filter(
-            "EmployeesPaymentsInContract.InsuranceContract.Organization.fullName",
-            "eq",
-            organizationName,
-          );
-        kek = founded;
-      } else {
-        const { data: founded } = await supabase.from("InsuredEmploye").select(
-          "*, EmployeesPaymentsInContract!inner(*, InsuranceContract!inner(Organization!inner(fullName), InsuranceContractPaymants!inner(*)))",
-        )
-          .filter(
-            "EmployeesPaymentsInContract.InsuranceContract.expirationDate",
-            "gte",
-            date.toISOString(),
-          )
-          .filter(
-            "EmployeesPaymentsInContract.InsuranceContract.creationDate",
-            "lte",
-            date.toISOString(),
-          );
-        kek = founded;
-      }
-      // .filter("riskCategory", "eq", "EmployeesInContract.InsuranceContract.InsuranceContractPaymants.riskCategory");
+      const { data } = await supabase.rpc("getInsurancePaymentsByDate", {
+        selecteddate: date,
+      });
+      setInsuredEmploye(data as TaskRecord[]);
 
-      const f = kek?.map((d) => ({
-        ...d,
-        cost: d.EmployeesPaymentsInContract[0].InsuranceContract
-          ?.InsuranceContractPaymants.filter((s) =>
-            s.riskCategory === d.riskCategory
-          )[0].cost,
-        orgName: d.EmployeesPaymentsInContract[0].InsuranceContract
-          ?.Organization?.fullName,
-      } as InsuredEmployeEx));
-
-      setInsuredEmploye(f);
+      // const f = kek?.map((d) => ({
+      //   ...d,
+      //   cost: d.EmployeesPaymentsInContract[0].InsuranceContract
+      //     ?.InsuranceContractPaymants.filter((s) =>
+      //       s.riskCategory === d.riskCategory
+      //     )[0].cost,
+      //   orgName: d.EmployeesPaymentsInContract[0].InsuranceContract
+      //     ?.Organization?.fullName,
+      // } as InsuredEmployeEx));
     }
   };
-  console.log('fsdfs:', props.contracts)
+  console.log("fsdfs:", props.contracts);
   return (
     <div class={"flex flex-col border p-2 mt-10 gap-2"}>
       <p>
@@ -136,13 +107,12 @@ export const Task3Card = (props: Task3CardProps) => {
             .map((name) => <option value={name}>{name}</option>)}
         </select>
       </div>
-        <button
-          className="w-15 bg-[#D0E7D2] p-1 rounded ml-auto"
-          onClick={findInsuredEmployeByDateAndOrg}
-        >
-          Search
-        </button>
-      
+      <button
+        className="w-15 bg-[#D0E7D2] p-1 rounded ml-auto"
+        onClick={findInsuredEmployeByDateAndOrg}
+      >
+        Search
+      </button>
 
       {insuredEmploye &&
         (
@@ -152,7 +122,7 @@ export const Task3Card = (props: Task3CardProps) => {
               <>
                 <InsuredEmployeHeaderCard />
                 {insuredEmploye.filter((insuredEmploye) =>
-                  insuredEmploye.riskCategory == "LowRisk"
+                  insuredEmploye.employeeCategory == "LowRisk"
                 ).map((insuredEmploye) => (
                   <InsuredEmployeCard insuredEmploye={insuredEmploye} />
                 ))}
@@ -164,7 +134,7 @@ export const Task3Card = (props: Task3CardProps) => {
               <>
                 <InsuredEmployeHeaderCard />
                 {insuredEmploye.filter((insuredEmploye) =>
-                  insuredEmploye.riskCategory == "MediumRisk"
+                  insuredEmploye.employeeCategory == "MediumRisk"
                 ).map((insuredEmploye) => (
                   <InsuredEmployeCard insuredEmploye={insuredEmploye} />
                 ))}
@@ -175,7 +145,7 @@ export const Task3Card = (props: Task3CardProps) => {
               <>
                 <InsuredEmployeHeaderCard />
                 {insuredEmploye.filter((insuredEmploye) =>
-                  insuredEmploye.riskCategory == "ModerateRisk"
+                  insuredEmploye.employeeCategory == "ModerateRisk"
                 ).map((insuredEmploye) => (
                   <InsuredEmployeCard insuredEmploye={insuredEmploye} />
                 ))}
@@ -186,7 +156,7 @@ export const Task3Card = (props: Task3CardProps) => {
               <>
                 <InsuredEmployeHeaderCard />
                 {insuredEmploye.filter((insuredEmploye) =>
-                  insuredEmploye.riskCategory == "HighRisk"
+                  insuredEmploye.employeeCategory == "HighRisk"
                 ).map((insuredEmploye) => (
                   <InsuredEmployeCard insuredEmploye={insuredEmploye} />
                 ))}
@@ -198,7 +168,7 @@ export const Task3Card = (props: Task3CardProps) => {
               <>
                 <InsuredEmployeHeaderCard />
                 {insuredEmploye.filter((insuredEmploye) =>
-                  insuredEmploye.riskCategory == "VeryHighRisk"
+                  insuredEmploye.employeeCategory == "VeryHighRisk"
                 ).map((insuredEmploye) => (
                   <InsuredEmployeCard insuredEmploye={insuredEmploye} />
                 ))}
@@ -211,30 +181,23 @@ export const Task3Card = (props: Task3CardProps) => {
 };
 
 type InsuredEmployeCardProps = {
-  insuredEmploye: InsuredEmployeEx;
+  insuredEmploye: TaskRecord;
 };
 
 const InsuredEmployeCard = (props: InsuredEmployeCardProps) => (
   <Row>
-    <Item content={props.insuredEmploye.id} center />
-    <Item content={props.insuredEmploye.fullName} />
-    <Item content={props.insuredEmploye.age} />
-    <Item content={props.insuredEmploye.riskCategory} monospace />
-    <Item content={props.insuredEmploye.orgName} />
-    <Item
-      content={props.insuredEmploye.cost}
-      monospace
-    />
+    <Item content={props.insuredEmploye.fullName} center />
+    <Item content={props.insuredEmploye.employeeCategory} />
+    <Item content={props.insuredEmploye.payment} />
+    <Item content={props.insuredEmploye.paymentDate} monospace />
   </Row>
 );
 
 const InsuredEmployeHeaderCard = () => (
   <Row>
-    <Item content="ID" center />
     <Item content="Full name" />
-    <Item content="Age" />
     <Item content="Risk" />
-    <Item content="Organization" />
-    <Item content="Cost" />
+    <Item content="Payment" />
+    <Item content="Paid At" />
   </Row>
 );
